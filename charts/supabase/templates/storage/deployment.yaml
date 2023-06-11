@@ -51,6 +51,11 @@ spec:
               sleep 2
               done
             - echo "Database is ready"
+          {{- if .Values.storage.enabled }}
+          volumeMounts:
+          - name: storage-config
+            mountPath: /.pm2/module_conf.json
+          {{- end }}               
       containers:
         - name: {{ include "supabase.storage.name" $ }}
           securityContext:
@@ -65,6 +70,8 @@ spec:
                   name: {{ include "supabase.storage.fullname" $ }}
                   key: {{ $key }}
             {{- end }}
+            - name: HOME
+              value: /tmp
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
@@ -103,7 +110,7 @@ spec:
           {{- with .Values.storage.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
-          {{- end }}
+          {{- end }}       
       {{- with .Values.storage.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -117,6 +124,12 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
+        {{- if .Values.storage.enabled }}
+        - name: storage-config
+          configMap:
+            defaultMode: 420
+            name: storage-config
+        {{- end }}
         {{- if .Values.storage.persistence.enabled }}
         - name: storage-data
           persistentVolumeClaim:

@@ -54,6 +54,8 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.jwt.secretName }}
                   key: serviceKey
+            - name: HOME
+              value: "/home/kong" 
           ports:
             - name: http
               containerPort: 8000
@@ -63,6 +65,8 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
+            - mountPath: /home/kong
+              name: cache-volume    
             - mountPath: /home/kong/template.yml
               name: config
               subPath: template.yml
@@ -84,6 +88,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
+        - name: cache-volume 
+          emptyDir:
+             sizeLimit: 500Mi 
         - name: config
           configMap:
             name: {{ include "supabase.kong.fullname" $ }}
