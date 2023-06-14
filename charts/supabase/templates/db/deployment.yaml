@@ -70,6 +70,8 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+      serviceAccount: postgres-sa
+      serviceAccountName: postgres-sa
       volumes:
         - name: custom-init-scripts
           configMap:
